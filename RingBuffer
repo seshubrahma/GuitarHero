@@ -1,0 +1,91 @@
+
+
+import java.util.NoSuchElementException;
+
+public class RingBuffer 
+{
+	private double[] buffers;
+	private int size;
+	private int first;
+	private int last;
+
+	public RingBuffer(int capacity)
+	{
+		buffers = new double[capacity];
+		size = 0;
+		first = 0;
+		last = -1;
+	}
+
+	//returns how many items are currently in buffer
+	public int size()
+	{
+		return size;
+	}
+
+	//checks if buffer array is empty
+	public boolean isEmpty()
+	{
+		return size == 0;
+	}
+
+	//checks if buffer array is full
+	public boolean isFull()
+	{
+		return size == buffers.length;
+	}
+
+	//adds item into buffer array
+	public void enqueue(double x)
+	{
+		if(isFull())
+		{
+			throw new IllegalStateException ("Ring buffer is full.");
+		}
+
+		last = (last+1) % buffers.length;
+		buffers[last] = x;
+		size++;
+	}
+
+	//delete and return item from the front (as long as the buffer is not empty)
+	public double dequeue()
+	{
+		if(isEmpty())
+		{
+			throw new NoSuchElementException ("No element left to remove");
+		}
+		
+		double result = buffers[first];
+		first = (first+1) % buffers.length;
+		size--;
+		return result;
+	}
+
+	//return (but do not delete) item from the front of the buffer
+	public double peek()
+	{
+		if(isEmpty())
+		{
+			throw new NoSuchElementException ("No element to read");
+		}
+		return buffers[first];
+	}
+
+	//returns array in order of element that has been there the longest to shortest 
+	public String toString()
+	{
+		String result = "[";
+		if(size == 0)
+		{
+			return result += "]";
+		}
+		for(int i = 0; i < size-1; i++)
+		{
+			result += buffers[(first+i) % buffers.length] + ", ";
+		}
+		return result + buffers[last] + "]";
+		
+	}
+}
+
