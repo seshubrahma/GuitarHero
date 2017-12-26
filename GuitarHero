@@ -1,0 +1,52 @@
+public class GuitarHero 
+{
+	private static final int KEYBOARD_LETTERS = 37;
+
+	public static void main(String[] args)
+	{
+		GuitarString[] gs = new GuitarString[KEYBOARD_LETTERS]; //make array of GuitarString objects
+		String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
+		
+        StdDraw.text(.2, .7, "Type a key to play a note!");
+        StdDraw.text(.4, .6, "The keys you can play are ");
+        StdDraw.text(.5, .5, "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' and space bar");
+		
+        makeGSArray(keyboard, gs);
+		play(keyboard, gs);
+	}
+
+	public static void makeGSArray(String keyboard, GuitarString[] gs)
+	{
+		for(int i = 0; i < keyboard.length(); i++)
+		{
+			gs[i] = new GuitarString(440 * Math.pow(1.05956, i-24)); //puts a different guitar string object w its frequency into array gs 
+		}
+	}
+
+	//plucks string that is associated with the key user presses, adds it to sample, and tics to advance the simulation of each guitar string
+	public static void play(String keyboard, GuitarString[] gs)
+	{
+		while (true)
+		{
+			double sample = 0;
+			if (StdDraw.hasNextKeyTyped()) 
+			{
+				char key = StdDraw.nextKeyTyped();
+				if(keyboard.indexOf(key) != -1)
+				{
+					gs[keyboard.indexOf(key)].pluck();
+				}
+			}
+			for(int i = 0; i < gs.length; i++)
+			{
+				sample += gs[i].sample();
+			}
+			StdAudio.play(sample);
+			for(int i = 0; i < gs.length; i++)
+			{
+				gs[i].tic();
+			}
+		}
+	}
+}
+
