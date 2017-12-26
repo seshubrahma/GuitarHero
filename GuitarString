@@ -1,0 +1,71 @@
+
+
+import java.lang.Math;
+import java.util.Random;
+
+public class GuitarString
+{
+	private static final int SAMPLING_RATE = 44100;
+	private static final double ENERGY_DECAY_FACTOR = .994;
+	private double frequency;
+	private int n;
+	private int numTicCalls = 0;
+	private static Random r = new Random();
+	RingBuffer rb;
+	
+	//creates a RingBuffer of the desired capacity N, initializes it to represent a guitar string at rest by enqueuing N zeros.
+	public GuitarString(double frequency)
+	{
+		this.frequency = frequency;
+		n = (int)(Math.ceil(SAMPLING_RATE / frequency));
+		rb = new RingBuffer(n);
+		for(int i = 0; i < n; i++)
+		{
+			rb.enqueue(0.0);
+		}
+	}
+	
+	//creates a RingBuffer of capacity equal to the size of the array, and initializes the contents of the buffer to the values in the array.
+	public GuitarString(double[] init)
+	{
+		rb = new RingBuffer(init.length);
+		for(int i = 0; i < init.length; i++)
+		{
+			rb.enqueue(init[i]);
+		}
+	}
+	
+	//Replace the N items in the ring buffer with N random values between -0.5 and +0.5.
+	public void pluck()
+	{
+		while(!rb.isEmpty())
+		{
+			rb.dequeue();
+		}
+		
+		while(!rb.isFull())
+		{
+			rb.enqueue(r.nextDouble() - .5); //Replace the N items in the ring buffer with N random values between -0.5 and +0.5.
+		}
+	}
+	
+	//delete the sample at the front of the ring buffer and add to the end of the ring buffer the average of the first two samples
+	public void tic()
+	{
+		double average = (rb.dequeue() + rb.peek()) / 2;
+		rb.enqueue(average*ENERGY_DECAY_FACTOR);
+		numTicCalls++;
+	}
+	
+	//Return the value of the item at the front of the ring buffer. 
+	public double sample()
+	{
+		return rb.peek();
+	}
+	
+	//Return the total number of times tic() was called.
+	public int time()
+	{
+		return numTicCalls;
+	}
+}
